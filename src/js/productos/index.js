@@ -1,16 +1,14 @@
-import { Dropdown } from "bootstrap";
+import { Dropdwon, Tab } from "bootstrap";
+import { config } from "fullcalendar";
+import { Toast, validarFormulario } from "../funciones";
 import Swal from "sweetalert2";
-import { validarFormulario } from "../funciones";
-import { FALSE } from "sass";
 
-
-const formulario = document.getElementById('formularioAplicaciones');
-const TablaAplicaciones = document.getElementById('AplicacionesIngresadas');
+const formulario = document.getElementById('FormProducto');
+const TablaProductos = document.getElementById('ProductosIngresados');
 const BtnGuardar = document.getElementById('BtnGuardar');
 const BtnModificar = document.getElementById('BtnModificar');
 const BtnCancelar = document.getElementById('BtnCancelar');
 
-TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
 BtnModificar.parentElement.classList.add('d-none');
 BtnCancelar.parentElement.classList.add('d-none');
 
@@ -19,7 +17,7 @@ const guardar = async (e) => {
 
     BtnGuardar.disabled = true;
 
-    if (!validarFormulario(formulario, ['app_id'])) {
+    if (!validarFormulario(formulario, ['producto_id'])) {
         Swal.fire({
             title: "Campos vacios",
             text: "Debe llenar todos los campos",
@@ -31,7 +29,7 @@ const guardar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/guardar';
+        const url = '/tienda/API/productos/guardar';
 
         const config = {
             method: 'POST',
@@ -80,12 +78,14 @@ const guardar = async (e) => {
     } catch (error) {
         console.log(error)
     }
+
     BtnGuardar.disabled = false;
+
 }
 
 const Buscar = async () => {
 
-    const url = '/tienda/API/aplicacion/buscar';
+    const url = '/tienda/API/productos/buscar';
 
     const config = {
         method: 'GET'
@@ -93,19 +93,20 @@ const Buscar = async () => {
 
     const respuesta = await fetch(url, config);
     const data = await respuesta.json();
-    // console.log(data);
-    TablaAplicaciones.tBodies[0].innerHTML = '';
+
+
+    TablaProductos.tBodies[0].innerHTML = '';
     const fragment = document.createDocumentFragment();
     let contador = 1;
 
     if (data.length > 0) {
-        TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
-        data.forEach(app => {
+        data.forEach(productos => {
             const tr = document.createElement('tr');
             const celda1 = document.createElement('td');
             const celda2 = document.createElement('td');
             const celda3 = document.createElement('td');
             const celda4 = document.createElement('td');
+            const celda5 = document.createElement('td');
 
             const BtnModificar = document.createElement('button');
             const BtnEliminar = document.createElement('button');
@@ -116,18 +117,21 @@ const Buscar = async () => {
             BtnEliminar.innerHTML = '<i class="bi bi-trash3"></i>';
             BtnEliminar.classList.add('btn', 'btn-danger', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
 
-            BtnModificar.addEventListener('click', () => llenarDatos(app));
-            BtnEliminar.addEventListener('click', () => Eliminar(app))
+            BtnModificar.addEventListener('click', () => llenarDatos(productos));
+            BtnEliminar.addEventListener('click', () => Eliminar(productos))
 
             celda1.innerText = contador;
-            celda2.innerText = app.app_nombre;
-            celda3.appendChild(BtnModificar)
-            celda4.appendChild(BtnEliminar)
+            celda2.innerText = productos.producto_nombre;
+            celda3.innerText = productos.producto_precio;
+            celda4.appendChild(BtnModificar)
+            celda5.appendChild(BtnEliminar)
 
             tr.appendChild(celda1);
             tr.appendChild(celda2);
             tr.appendChild(celda3);
             tr.appendChild(celda4);
+            tr.appendChild(celda5);
+
             fragment.appendChild(tr);
             contador++;
 
@@ -136,38 +140,36 @@ const Buscar = async () => {
     } else {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.innerText = 'No hay app Registrados ';
+        td.innerText = 'No hay productos Registrados ';
         tr.classList.add('text-center');
-        td.colSpan = 4;
+        td.colSpan = 5;
 
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
-    TablaAplicaciones.tBodies[0].appendChild(fragment);
+    TablaProductos.tBodies[0].appendChild(fragment);
 }
 
-const llenarDatos = (app) => {
+const llenarDatos = (productos) => {
 
-    TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
+    TablaProductos.parentElement.classList.add('d-none');
     BtnGuardar.parentElement.classList.add('d-none');
     BtnModificar.parentElement.classList.remove('d-none');
     BtnCancelar.parentElement.classList.remove('d-none');
 
-    formulario.app_id.value = app.app_id;
-    formulario.app_nombre.value = app.app_nombre;
+    formulario.producto_id.value = productos.producto_id;
+    formulario.producto_nombre.value = productos.producto_nombre;
+    formulario.producto_precio.value = productos.producto_precio;
 }
 
 const Cancelar = () => {
 
-    TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
+    TablaProductos.parentElement.classList.remove('d-none');
     BtnGuardar.parentElement.classList.remove('d-none');
     BtnModificar.parentElement.classList.add('d-none');
     BtnCancelar.parentElement.classList.add('d-none');
-
     formulario.reset();
-    Buscar();
 }
-
 
 const Modificar = async (e) => {
     e.preventDefault()
@@ -183,7 +185,7 @@ const Modificar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/modificar';
+        const url = '/tienda/API/productos/modificar';
 
         const config = {
             method: 'POST',
@@ -234,9 +236,10 @@ const Modificar = async (e) => {
     }
 }
 
-const Eliminar = async (aplicacion) => {
+
+const Eliminar = async (productos) => {
     let confirmacion = await Swal.fire({
-        title: '¿Está seguro de que desea eliminar esta aplicacion?',
+        title: '¿Está seguro de que desea eliminar este producto?',
         text: "Esta acción es irreversible.",
         icon: 'warning',
         showDenyButton: true,
@@ -258,9 +261,9 @@ const Eliminar = async (aplicacion) => {
         try {
 
             const body = new FormData()
-            body.append('id', aplicacion.app_id)
+            body.append('id', productos.producto_id)
 
-            const url = '/tienda/API/aplicacion/eliminar';
+            const url = '/tienda/API/productos/eliminar';
             const config = {
                 method: 'POST',
                 body
@@ -310,10 +313,7 @@ const Eliminar = async (aplicacion) => {
     }
 }
 
-
-
 Buscar();
-formulario.addEventListener('submit', guardar)
 BtnCancelar.addEventListener('click', Cancelar)
+formulario.addEventListener('submit', guardar)
 BtnModificar.addEventListener('click', Modificar)
-

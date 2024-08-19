@@ -1,16 +1,17 @@
 import { Dropdown } from "bootstrap";
-import Swal from "sweetalert2";
+import { config } from "fullcalendar";
 import { validarFormulario } from "../funciones";
-import { FALSE } from "sass";
+import Swal from "sweetalert2";
 
 
-const formulario = document.getElementById('formularioAplicaciones');
-const TablaAplicaciones = document.getElementById('AplicacionesIngresadas');
+const formulario = document.getElementById('formularioUsuario');
+const TablaUsuarios = document.getElementById('UsuariosIngresados');
 const BtnGuardar = document.getElementById('BtnGuardar');
 const BtnModificar = document.getElementById('BtnModificar');
 const BtnCancelar = document.getElementById('BtnCancelar');
 
-TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
+// Ocultar botones y tabla
+TablaUsuarios.parentElement.parentElement.classList.add('d-none');
 BtnModificar.parentElement.classList.add('d-none');
 BtnCancelar.parentElement.classList.add('d-none');
 
@@ -19,7 +20,7 @@ const guardar = async (e) => {
 
     BtnGuardar.disabled = true;
 
-    if (!validarFormulario(formulario, ['app_id'])) {
+    if (!validarFormulario(formulario, ['usu_id'])) {
         Swal.fire({
             title: "Campos vacios",
             text: "Debe llenar todos los campos",
@@ -31,7 +32,7 @@ const guardar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/guardar';
+        const url = '/tienda/API/usuario/guardar';
 
         const config = {
             method: 'POST',
@@ -64,7 +65,7 @@ const guardar = async (e) => {
             Swal.fire({
                 title: '¡Error!',
                 text: mensaje,
-                icon: 'danger',
+                icon: 'warning',
                 showConfirmButton: false,
                 timer: 1500,
                 timerProgressBar: true,
@@ -81,11 +82,12 @@ const guardar = async (e) => {
         console.log(error)
     }
     BtnGuardar.disabled = false;
+
 }
 
 const Buscar = async () => {
 
-    const url = '/tienda/API/aplicacion/buscar';
+    const url = '/tienda/API/usuario/buscar';
 
     const config = {
         method: 'GET'
@@ -93,19 +95,20 @@ const Buscar = async () => {
 
     const respuesta = await fetch(url, config);
     const data = await respuesta.json();
-    // console.log(data);
-    TablaAplicaciones.tBodies[0].innerHTML = '';
+
+    TablaUsuarios.tBodies[0].innerHTML = '';
     const fragment = document.createDocumentFragment();
     let contador = 1;
 
     if (data.length > 0) {
-        TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
-        data.forEach(app => {
+        TablaUsuarios.parentElement.parentElement.classList.remove('d-none');
+        data.forEach(usuarios => {
             const tr = document.createElement('tr');
             const celda1 = document.createElement('td');
             const celda2 = document.createElement('td');
             const celda3 = document.createElement('td');
             const celda4 = document.createElement('td');
+            const celda5 = document.createElement('td');
 
             const BtnModificar = document.createElement('button');
             const BtnEliminar = document.createElement('button');
@@ -116,18 +119,21 @@ const Buscar = async () => {
             BtnEliminar.innerHTML = '<i class="bi bi-trash3"></i>';
             BtnEliminar.classList.add('btn', 'btn-danger', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
 
-            BtnModificar.addEventListener('click', () => llenarDatos(app));
-            BtnEliminar.addEventListener('click', () => Eliminar(app))
+            BtnModificar.addEventListener('click', () => llenarDatos(usuarios));
+            BtnEliminar.addEventListener('click', () => Eliminar(usuarios))
 
             celda1.innerText = contador;
-            celda2.innerText = app.app_nombre;
-            celda3.appendChild(BtnModificar)
-            celda4.appendChild(BtnEliminar)
+            celda2.innerText = usuarios.usu_nombre;
+            celda3.innerText = usuarios.usu_catalogo;
+            celda4.appendChild(BtnModificar)
+            celda5.appendChild(BtnEliminar)
 
             tr.appendChild(celda1);
             tr.appendChild(celda2);
             tr.appendChild(celda3);
             tr.appendChild(celda4);
+            tr.appendChild(celda5);
+
             fragment.appendChild(tr);
             contador++;
 
@@ -136,38 +142,40 @@ const Buscar = async () => {
     } else {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.innerText = 'No hay app Registrados ';
+        td.innerText = 'No hay usuarios Registrados ';
         tr.classList.add('text-center');
-        td.colSpan = 4;
+        td.colSpan = 5;
 
         tr.appendChild(td);
         fragment.appendChild(tr);
     }
-    TablaAplicaciones.tBodies[0].appendChild(fragment);
+    TablaUsuarios.tBodies[0].appendChild(fragment);
 }
 
-const llenarDatos = (app) => {
+const llenarDatos = (usuarios) => {
 
-    TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
+    TablaUsuarios.parentElement.parentElement.classList.add('d-none');
     BtnGuardar.parentElement.classList.add('d-none');
     BtnModificar.parentElement.classList.remove('d-none');
     BtnCancelar.parentElement.classList.remove('d-none');
 
-    formulario.app_id.value = app.app_id;
-    formulario.app_nombre.value = app.app_nombre;
+    formulario.usu_id.value = usuarios.usu_id;
+    formulario.usu_nombre.value = usuarios.usu_nombre;
+    formulario.usu_catalogo.value = usuarios.usu_catalogo;
+    formulario.usu_catalogo.setAttribute('readonly', true);
 }
 
 const Cancelar = () => {
 
-    TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
+    TablaUsuarios.parentElement.parentElement.classList.remove('d-none');
     BtnGuardar.parentElement.classList.remove('d-none');
     BtnModificar.parentElement.classList.add('d-none');
     BtnCancelar.parentElement.classList.add('d-none');
 
     formulario.reset();
+    formulario.usu_catalogo.removeAttribute('readonly');
     Buscar();
 }
-
 
 const Modificar = async (e) => {
     e.preventDefault()
@@ -183,7 +191,7 @@ const Modificar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/modificar';
+        const url = '/tienda/API/usuario/modificar';
 
         const config = {
             method: 'POST',
@@ -234,9 +242,9 @@ const Modificar = async (e) => {
     }
 }
 
-const Eliminar = async (aplicacion) => {
+const Eliminar = async (usuarios) => {
     let confirmacion = await Swal.fire({
-        title: '¿Está seguro de que desea eliminar esta aplicacion?',
+        title: '¿Está seguro de que desea eliminar este usuario?',
         text: "Esta acción es irreversible.",
         icon: 'warning',
         showDenyButton: true,
@@ -255,12 +263,14 @@ const Eliminar = async (aplicacion) => {
     });
     if (confirmacion.isConfirmed) {
 
+
         try {
 
-            const body = new FormData()
-            body.append('id', aplicacion.app_id)
 
-            const url = '/tienda/API/aplicacion/eliminar';
+            const body = new FormData()
+            body.append('id', usuarios.usu_id)
+
+            const url = '/tienda/API/usuario/eliminar';
             const config = {
                 method: 'POST',
                 body
@@ -311,9 +321,7 @@ const Eliminar = async (aplicacion) => {
 }
 
 
-
 Buscar();
-formulario.addEventListener('submit', guardar)
-BtnCancelar.addEventListener('click', Cancelar)
+BtnCancelar.addEventListener('click', Cancelar);
+formulario.addEventListener('submit', guardar);
 BtnModificar.addEventListener('click', Modificar)
-

@@ -1,25 +1,91 @@
 import { Dropdown } from "bootstrap";
-import Swal from "sweetalert2";
 import { validarFormulario } from "../funciones";
-import { FALSE } from "sass";
+import Swal from "sweetalert2";
 
+const formulario = document.getElementById('formularioPermiso');
+const BtnGuardar = document.getElementById('btnGuardar');
+const BtnModificar = document.getElementById('btnModificar');
+const BtnCancelar = document.getElementById('btnCancelar');
+const PermisosIngresados  = document.getElementById('PermisosIngresados')
 
-const formulario = document.getElementById('formularioAplicaciones');
-const TablaAplicaciones = document.getElementById('AplicacionesIngresadas');
-const BtnGuardar = document.getElementById('BtnGuardar');
-const BtnModificar = document.getElementById('BtnModificar');
-const BtnCancelar = document.getElementById('BtnCancelar');
-
-TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
+PermisosIngresados.parentElement.parentElement.classList.add('d-none');
 BtnModificar.parentElement.classList.add('d-none');
 BtnCancelar.parentElement.classList.add('d-none');
+
+
+const Buscar = async () => {
+
+    const url = '/tienda/API/permiso/buscar';
+
+    const config = {
+        method: 'GET'
+    }
+
+    const respuesta = await fetch(url, config);
+    const data = await respuesta.json();
+    // console.log(data)
+    PermisosIngresados.tBodies[0].innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    let contador = 1;
+
+    if (data.length > 0) {
+        PermisosIngresados.parentElement.parentElement.classList.remove('d-none');
+        data.forEach(permiso => {
+            const tr = document.createElement('tr');
+            const celda1 = document.createElement('td');
+            const celda2 = document.createElement('td');
+            const celda3 = document.createElement('td');
+            const celda4 = document.createElement('td');
+            const celda5 = document.createElement('td');
+
+            const BtnModificar = document.createElement('button');
+            const BtnEliminar = document.createElement('button');
+
+            BtnModificar.innerHTML = '<i class="bi bi-pencil"></i>';
+            BtnModificar.classList.add('btn', 'btn-warning', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
+
+            BtnEliminar.innerHTML = '<i class="bi bi-trash3"></i>';
+            BtnEliminar.classList.add('btn', 'btn-danger', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
+
+            BtnModificar.addEventListener('click', () => llenarDatos(permiso));
+            BtnEliminar.addEventListener('click', () => Eliminar(permiso))
+
+            celda1.innerText = contador;
+            celda2.innerText = permiso.usu_nombre;
+            celda3.innerText = permiso.rol_nombre;
+            celda4.appendChild(BtnModificar)
+            celda5.appendChild(BtnEliminar)
+
+            tr.appendChild(celda1);
+            tr.appendChild(celda2);
+            tr.appendChild(celda3);
+            tr.appendChild(celda4);
+            tr.appendChild(celda5);
+
+            fragment.appendChild(tr);
+            contador++;
+
+        })
+
+    } else {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.innerText = 'No hay permiso Registrados ';
+        tr.classList.add('text-center');
+        td.colSpan = 5;
+
+        tr.appendChild(td);
+        fragment.appendChild(tr);
+    }
+    PermisosIngresados.tBodies[0].appendChild(fragment);
+}
 
 const guardar = async (e) => {
     e.preventDefault();
 
     BtnGuardar.disabled = true;
 
-    if (!validarFormulario(formulario, ['app_id'])) {
+    if (!validarFormulario(formulario, ['permiso_id'])) {
         Swal.fire({
             title: "Campos vacios",
             text: "Debe llenar todos los campos",
@@ -31,7 +97,7 @@ const guardar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/guardar';
+        const url = '/tienda/API/permiso/guardar';
 
         const config = {
             method: 'POST',
@@ -64,7 +130,7 @@ const guardar = async (e) => {
             Swal.fire({
                 title: '¡Error!',
                 text: mensaje,
-                icon: 'danger',
+                icon: 'warning',
                 showConfirmButton: false,
                 timer: 1500,
                 timerProgressBar: true,
@@ -81,85 +147,25 @@ const guardar = async (e) => {
         console.log(error)
     }
     BtnGuardar.disabled = false;
+
 }
 
-const Buscar = async () => {
+const llenarDatos = (permiso) => {
 
-    const url = '/tienda/API/aplicacion/buscar';
-
-    const config = {
-        method: 'GET'
-    }
-
-    const respuesta = await fetch(url, config);
-    const data = await respuesta.json();
-    // console.log(data);
-    TablaAplicaciones.tBodies[0].innerHTML = '';
-    const fragment = document.createDocumentFragment();
-    let contador = 1;
-
-    if (data.length > 0) {
-        TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
-        data.forEach(app => {
-            const tr = document.createElement('tr');
-            const celda1 = document.createElement('td');
-            const celda2 = document.createElement('td');
-            const celda3 = document.createElement('td');
-            const celda4 = document.createElement('td');
-
-            const BtnModificar = document.createElement('button');
-            const BtnEliminar = document.createElement('button');
-
-            BtnModificar.innerHTML = '<i class="bi bi-pencil"></i>';
-            BtnModificar.classList.add('btn', 'btn-warning', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
-
-            BtnEliminar.innerHTML = '<i class="bi bi-trash3"></i>';
-            BtnEliminar.classList.add('btn', 'btn-danger', 'w-100', 'text-uppercase', 'fw-bold', 'shadow', 'border-0');
-
-            BtnModificar.addEventListener('click', () => llenarDatos(app));
-            BtnEliminar.addEventListener('click', () => Eliminar(app))
-
-            celda1.innerText = contador;
-            celda2.innerText = app.app_nombre;
-            celda3.appendChild(BtnModificar)
-            celda4.appendChild(BtnEliminar)
-
-            tr.appendChild(celda1);
-            tr.appendChild(celda2);
-            tr.appendChild(celda3);
-            tr.appendChild(celda4);
-            fragment.appendChild(tr);
-            contador++;
-
-        })
-
-    } else {
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.innerText = 'No hay app Registrados ';
-        tr.classList.add('text-center');
-        td.colSpan = 4;
-
-        tr.appendChild(td);
-        fragment.appendChild(tr);
-    }
-    TablaAplicaciones.tBodies[0].appendChild(fragment);
-}
-
-const llenarDatos = (app) => {
-
-    TablaAplicaciones.parentElement.parentElement.classList.add('d-none');
+    PermisosIngresados.parentElement.parentElement.classList.add('d-none');
     BtnGuardar.parentElement.classList.add('d-none');
     BtnModificar.parentElement.classList.remove('d-none');
     BtnCancelar.parentElement.classList.remove('d-none');
 
-    formulario.app_id.value = app.app_id;
-    formulario.app_nombre.value = app.app_nombre;
+    formulario.permiso_id.value = permiso.permiso_id;
+    formulario.permiso_usuario.value = permiso.permiso_usuario;
+    formulario.permiso_rol.value = permiso.permiso_rol;
+
 }
 
 const Cancelar = () => {
 
-    TablaAplicaciones.parentElement.parentElement.classList.remove('d-none');
+    PermisosIngresados.parentElement.parentElement.classList.remove('d-none');
     BtnGuardar.parentElement.classList.remove('d-none');
     BtnModificar.parentElement.classList.add('d-none');
     BtnCancelar.parentElement.classList.add('d-none');
@@ -167,7 +173,6 @@ const Cancelar = () => {
     formulario.reset();
     Buscar();
 }
-
 
 const Modificar = async (e) => {
     e.preventDefault()
@@ -183,7 +188,7 @@ const Modificar = async (e) => {
 
     try {
         const body = new FormData(formulario)
-        const url = '/tienda/API/aplicacion/modificar';
+        const url = '/tienda/API/permiso/modificar';
 
         const config = {
             method: 'POST',
@@ -234,9 +239,9 @@ const Modificar = async (e) => {
     }
 }
 
-const Eliminar = async (aplicacion) => {
+const Eliminar = async (permiso) => {
     let confirmacion = await Swal.fire({
-        title: '¿Está seguro de que desea eliminar esta aplicacion?',
+        title: '¿Está seguro de que desea eliminar este permiso?',
         text: "Esta acción es irreversible.",
         icon: 'warning',
         showDenyButton: true,
@@ -255,12 +260,14 @@ const Eliminar = async (aplicacion) => {
     });
     if (confirmacion.isConfirmed) {
 
+
         try {
 
-            const body = new FormData()
-            body.append('id', aplicacion.app_id)
 
-            const url = '/tienda/API/aplicacion/eliminar';
+            const body = new FormData()
+            body.append('id', permiso.permiso_id)
+
+            const url = '/tienda/API/permiso/eliminar';
             const config = {
                 method: 'POST',
                 body
@@ -311,9 +318,7 @@ const Eliminar = async (aplicacion) => {
 }
 
 
-
 Buscar();
-formulario.addEventListener('submit', guardar)
-BtnCancelar.addEventListener('click', Cancelar)
-BtnModificar.addEventListener('click', Modificar)
-
+formulario.addEventListener('submit', guardar);
+BtnCancelar.addEventListener('click', Cancelar);
+BtnModificar.addEventListener('click', Modificar);

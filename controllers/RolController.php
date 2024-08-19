@@ -3,25 +3,31 @@
 namespace Controllers;
 
 use Exception;
-use Model\Producto;
+use Model\Aplicacion;
+use Model\Rol;
 use MVC\Router;
-use Model\ActiveRecord;
 
-class ProductoController
+class RolController
 {
     public static function index(Router $router)
-    {
-        $router->render('productos/index', []);
+    {   
+        $sql = "SELECT * FROM aplicacion where app_situacion = 1";
+
+        $resultado = Aplicacion::fetchArray($sql);
+        $router->render('rol/index', [
+            'aplicaciones' => $resultado
+        ]);
     }
 
     public static function guardarAPI()
     {
-        $_POST['producto_nombre'] = htmlspecialchars($_POST['producto_nombre']);
-        $_POST['producto_precio'] = filter_var($_POST['producto_precio'], FILTER_VALIDATE_FLOAT);
+        $_POST['rol_nombre'] = htmlspecialchars($_POST['rol_nombre']);
+        $_POST['rol_nombre_ct'] = htmlspecialchars($_POST['rol_nombre_ct']);
+        $_POST['rol_app'] = filter_var($_POST['rol_app'], FILTER_SANITIZE_NUMBER_INT);
 
         try {
-            $producto = new Producto($_POST);
-            $resultado = $producto->crear();
+            $respuesta = new Rol($_POST);
+            $resultado = $respuesta->crear();
             http_response_code(200);
             echo json_encode([
                 'codigo' => 1,
@@ -37,15 +43,15 @@ class ProductoController
         }
     }
 
-    public static function BuscarAPI()
+    public static function buscarAPI()
     {
         try {
 
-            $sql = "SELECT * FROM productos where producto_situacion = 1";
+            $sql = "SELECT rol_id, rol_nombre, rol_app, rol_nombre_ct, app_nombre FROM rol INNER JOIN aplicacion ON app_id = rol_app WHERE rol_situacion = 1";
 
-            $productos = Producto::fetchArray($sql);
+            $resultado = Rol::fetchArray($sql);
             http_response_code(200);
-            echo json_encode($productos);
+            echo json_encode($resultado);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
@@ -58,24 +64,25 @@ class ProductoController
 
     public static function modificarAPI()
     {
-        $_POST['producto_nombre'] = htmlspecialchars($_POST['producto_nombre']);
-        $_POST['producto_precio'] = filter_var($_POST['producto_precio'], FILTER_SANITIZE_NUMBER_FLOAT);
-        $id = filter_var($_POST['producto_id'], FILTER_SANITIZE_NUMBER_INT);
-        try {
+        $_POST['rol_nombre'] = htmlspecialchars($_POST['rol_nombre']);
+        $_POST['rol_nombre_ct'] = htmlspecialchars($_POST['rol_nombre_ct']);
+        $_POST['rol_app'] = filter_var($_POST['rol_app'], FILTER_SANITIZE_NUMBER_INT);
+        $id = filter_var($_POST['rol_id'], FILTER_SANITIZE_NUMBER_INT);
 
-            $producto = Producto::find($id);
-            $producto->sincronizar($_POST);
-            $producto->actualizar();
+        try {
+            $resultado = Rol::find($id);
+            $resultado->sincronizar($_POST);
+            $resultado->actualizar();
             http_response_code(200);
             echo json_encode([
                 'codigo' => 3,
-                'mensaje' => 'Producto modificado exitosamente',
+                'mensaje' => 'Rol modificado exitosamente',
             ]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
                 'codigo' => 0,
-                'mensaje' => 'Error al modificar producto',
+                'mensaje' => 'Error al modificar rol',
                 'detalle' => $e->getMessage(),
             ]);
         }
@@ -87,25 +94,26 @@ class ProductoController
         $id = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
         try {
 
-            $producto = Producto::find($id);
-            $producto->sincronizar([
-                'producto_situacion' => 0
+            $resultado = Rol::find($id);
+            $resultado->sincronizar([
+                'rol_situacion' => 0
             ]);
-            // echo json_encode($producto);
+            // echo json_encode($resultado);
             // exit;
-            $producto->actualizar();
+            $resultado->actualizar();
             http_response_code(200);
             echo json_encode([
                 'codigo' => 4,
-                'mensaje' => 'Producto eliminado exitosamente',
+                'mensaje' => 'Rol eliminado exitosamente',
             ]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
                 'codigo' => 0,
-                'mensaje' => 'Error al eliminar el producto',
+                'mensaje' => 'Error al eliminar Rol',
                 'detalle' => $e->getMessage(),
             ]);
         }
     }
+    
 }

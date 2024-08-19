@@ -41,6 +41,7 @@ class ActiveRecord {
         } else {
             // Creando un nuevo registro
             $resultado = $this->crear();
+
         }
         return $resultado;
     }
@@ -109,7 +110,6 @@ class ActiveRecord {
         $query .= join(", ", array_values($atributos));
         $query .= " ) ";
         
-
         // debuguear($query);
 
         // Resultado de la consulta

@@ -4,21 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="build/js/app.js"></script>
-    <link rel="shortcut icon" href="<?= asset('images/Logo.webp') ?>" type="image/x-icon">
+    <script src="<?= asset('build/js/app.js') ?>"></script>
+    <link rel="shortcut icon" href="<?= asset('images/logo.webp') ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= asset('build/styles.css') ?>">
-    <title>DemoApp</title>
+    <title>Tienda Vasquez</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark  bg-secondary bg-gradient">
+    <nav class="navbar navbar-expand-lg navbar-dark  bg-dark">
+
         <div class="container-fluid">
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="/tienda/">
-                <img src="<?= asset('./images/recr.png') ?>" width="75px" alt="cit">
+            <a class="navbar-brand" href="/ejemplo/">
+                <img src="<?= asset('./images/tienda.png') ?>" width="45px'" alt="cit">
                 Tienda
             </a>
             <div class="collapse navbar-collapse" id="navbarToggler">
@@ -28,33 +29,41 @@
                         <a class="nav-link" aria-current="page" href="/tienda/"><i class="bi bi-house-fill me-2"></i>Inicio</a>
                     </li>
 
-
                     <div class="nav-item dropdown ">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-award-fill"></i> Productos
+                            <i class="bi bi-cart3 me-2"></i>Productos
                         </a>
                         <ul class="dropdown-menu  dropdown-menu-dark " id="dropwdownRevision" style="margin: 0;">
+                            <!-- <h6 class="dropdown-header">Información</h6> -->
                             <li>
-                                <a class="dropdown-item nav-link text-white " href="/tienda/producto"><i class="ms-lg-0 ms-2 bi bi-plus-circle me-2"></i>Registrar</a>
+                                <a class="dropdown-item  text-white " href="/tienda/productos"><i class="ms-lg-0 ms-2 bi bi-plus-circle me-2"></i>Productos</a>
                             </li>
                         </ul>
                     </div>
-
-                    <div class="nav-item dropdown ">
+                    <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-gear-fill"></i> Herramientas
+                            <i class="bi bi-person-circle me-2"></i>Usuarios
                         </a>
-                        <ul class="dropdown-menu  dropdown-menu-dark " id="dropwdownRevision" style="margin: 0;">
+                        <ul class="dropdown-menu dropdown-menu-dark" id="dropdownRevision" style="margin: 0;">
                             <li>
-                                <a class="dropdown-item nav-link text-white " href="/tienda/aplicacion"><i class="bi bi-app"></i> Aplicaciones</a>
+                                <a class="dropdown-item text-white" href="/tienda/usuarios"><i class="ms-lg-0 ms-2 bi bi-person-add me-2"></i>Creacion de Usuarios</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="/tienda/aplicacion"><i class="ms-lg-0 ms-2 bi bi-person-add me-2"></i>Aplicaciones</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="/tienda/rol"><i class="ms-lg-0 ms-2 bi bi-person-add me-2"></i>Asignacion Roles</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="/tienda/permiso"><i class="ms-lg-0 ms-2 bi bi-person-add me-2"></i>Permisos</a>
                             </li>
                         </ul>
                     </div>
 
                 </ul>
-
                 <div class="col-lg-1 d-grid mb-lg-0 mb-2">
-                    <a href="/tienda/" class="btn btn-info"><i class="bi bi-arrow-bar-left"></i></a>
+
+                    <a href="/menu/" class="btn btn-danger"><i class="bi bi-arrow-bar-left"></i></a>
                 </div>
 
 
