@@ -19,7 +19,7 @@ class ProductoController
     public static function guardarAPI()
     {
         $_POST['nombre'] = htmlspecialchars($_POST['nombre']);
-
+        $_POST['precio'] = filter_var($_POST['precio'], FILTER_SANITIZE_NUMBER_FLOAT);
         try {
             $producto = new Producto($_POST);
             $resultado = $producto->crear();
@@ -93,10 +93,7 @@ class ProductoController
         try {
 
             $producto = Producto::find($id);
-            // $producto->sincronizar([
-            //     'situacion' => 0
-            // ]);
-            // $producto->actualizar();
+
             $producto->eliminar();
             http_response_code(200);
             echo json_encode([
